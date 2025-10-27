@@ -1,35 +1,35 @@
-#include <iostream>//¦¹ÃD¥Ø¬°¹B¥Î¦h¶µ¦¡(Polynomial)¨Ó¶i¦æ¥|ºû¹Bºâ¤¤ªº¥[ªk¥H¤Î­¼ªk¡C
-#include <algorithm>//³o­Ó¼ĞÀYÀÉ´£¨Ñ ¤j¶q±`¥Îªººtºâªk¨ç¦¡¡A¦ı¦b³o­ÓÃD¥Ø¤¤¥u·|¥Î¨ìsort()±Æ§Ç¡C
-#include <cmath>//³o­Ó¼ĞÀYÀÉ¬O C++ ¼Æ¾Ç¨ç¦¡®w¡A¥]§t¦UºØ¼Æ¾Ç¹Bºâ¨ç¦¡¡AÃD¥Ø¤¤¥Î©ó¦h¶µ¦¡ªº Eval() ¨ç¦¡¡A­pºâ pow(x, exp)¡C
+//41343124 å››è³‡å·¥äºŒç”² å¼µè±ˆç¿
+#include <iostream>//æ­¤é¡Œç›®ç‚ºé‹ç”¨å¤šé …å¼(Polynomial)ä¾†é€²è¡Œå››ç¶­é‹ç®—ä¸­çš„åŠ æ³•ä»¥åŠä¹˜æ³•ã€‚
+#include <algorithm>//é€™å€‹æ¨™é ­æª”æä¾› å¤§é‡å¸¸ç”¨çš„æ¼”ç®—æ³•å‡½å¼ï¼Œä½†åœ¨é€™å€‹é¡Œç›®ä¸­åªæœƒç”¨åˆ°sort()æ’åºã€‚
+#include <cmath>//é€™å€‹æ¨™é ­æª”æ˜¯ C++ æ•¸å­¸å‡½å¼åº«ï¼ŒåŒ…å«å„ç¨®æ•¸å­¸é‹ç®—å‡½å¼ï¼Œé¡Œç›®ä¸­ç”¨æ–¼å¤šé …å¼çš„ Eval() å‡½å¼ï¼Œè¨ˆç®— pow(x, exp)ã€‚
 using namespace std;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Term {// Term Ãş§O
-    friend class Polynomial;//±NPolynomial¥[¤J¤Í½ËÃş§O´N¯à¨Ï¥ÎPolynomialÃş§Oªº¨p¦³¶µ¤º®e¤F
+class Term {// Term é¡åˆ¥
+    friend class Polynomial;//å°‡PolynomialåŠ å…¥å‹èª¼é¡åˆ¥å°±èƒ½ä½¿ç”¨Polynomialé¡åˆ¥çš„ç§æœ‰é …å…§å®¹äº†
 public:
-    float coef;//±`¼Æ¶µÅÜ¼Æ
-    int exp;//«ü¼Æ¶µÅÜ¼Æ
-    Term(float c = 0, int e = 0) : coef(c), exp(e) {}//¬ö¿ıPolynomialªº±`¼Æ¤Î«ü¼Æ
+    float coef;//å¸¸æ•¸é …è®Šæ•¸
+    int exp;//æŒ‡æ•¸é …è®Šæ•¸
+    Term(float c = 0, int e = 0) : coef(c), exp(e) {}//ç´€éŒ„Polynomialçš„å¸¸æ•¸åŠæŒ‡æ•¸
 };
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Polynomial {// Polynomial Ãş§O
+class Polynomial {// Polynomial é¡åˆ¥
 private:
-    Term* termArray;//°O¿ıÂI°O¾ĞÅé
-    int capacity;//°O¾ĞÅéªºªÅ¶¡¤p°O¿ıÂI
-    int terms;//Àx¦s«D¹s¶µÅÜ¼Æ
+    Term* termArray;//è¨˜éŒ„é»è¨˜æ†¶é«”
+    int capacity;//è¨˜æ†¶é«”çš„ç©ºé–“å°è¨˜éŒ„é»
+    int terms;//å„²å­˜éé›¶é …è®Šæ•¸
 
-    // ¦pªG»İ­n¡AÂX¼W®e¶q
-    void NewArray(int n1) {
-        if (n1 <= capacity) return;//§PÂ_°O¾ĞÅéªÅ¶¡¬O§_¨¬°÷
-        int n2 = capacity;//¤£¨¬®É±N²{¦bªºªÅ¶¡¤j¤p¦s°_¨Ó
-        while (n2 < n1) n2 *= 2;//¨Ã¥[¨â­¿ªºªÅ¶¡¡A·§©À2ªºN¦¸¤è­¿¼W¥[
-        Term* n3 = new Term[n2];//«Ø¥ß·sªº°O¾ĞÅéªÅ¶¡
-        for (int i = 0; i < terms; ++i) n3[i] = termArray[i];//¨Ã±N²{¦bªºªÅ¶¡¤º®eÂà²¾
-        delete[] termArray;//§R°£­ì¥»ªº°O¾ĞÅé
-        termArray = n3;/////////////////////////////////ª`·N!! ¦¹®É¤w§R°£­ì¥»«ü¼Ğ¶µªº°O¾ĞÅé¡A»İ­n­«·s«ü¶µ·sªº°O¾ĞÅéªÅ¶¡
-        capacity = n2;//¶Ç¤J·sªºªÅ¶¡¤j¤p
+    void NewArray(int n1) {  // å¦‚æœéœ€è¦ï¼Œæ“´å¢å®¹é‡
+        if (n1 <= capacity) return;//åˆ¤æ–·è¨˜æ†¶é«”ç©ºé–“æ˜¯å¦è¶³å¤ 
+        int n2 = capacity;//ä¸è¶³æ™‚å°‡ç¾åœ¨çš„ç©ºé–“å¤§å°å­˜èµ·ä¾†
+        while (n2 < n1) n2 *= 2;//ä¸¦åŠ å…©å€çš„ç©ºé–“ï¼Œæ¦‚å¿µ2çš„Næ¬¡æ–¹å€å¢åŠ 
+        Term* n3 = new Term[n2];//å»ºç«‹æ–°çš„è¨˜æ†¶é«”ç©ºé–“
+        for (int i = 0; i < terms; ++i) n3[i] = termArray[i];//ä¸¦å°‡ç¾åœ¨çš„ç©ºé–“å…§å®¹è½‰ç§»
+        delete[] termArray;//åˆªé™¤åŸæœ¬çš„è¨˜æ†¶é«”
+        termArray = n3;/////////////////////////////////æ³¨æ„!! æ­¤æ™‚å·²åˆªé™¤åŸæœ¬æŒ‡æ¨™é …çš„è¨˜æ†¶é«”ï¼Œéœ€è¦é‡æ–°æŒ‡é …æ–°çš„è¨˜æ†¶é«”ç©ºé–“
+        capacity = n2;//å‚³å…¥æ–°çš„ç©ºé–“å¤§å°
     }
 
-    void addTerm(const Term& t) {//»PSTerm¤j­P¬Û¦P¦ı¦¹¨ç¦¡¬O±Mªù§PÂ_Term¸ê®Æ«¬ºAªº¦Ó«Dªì©l¿é¤Jcoef¤Îexp¡A¥Î©ó Mult ¥H¤Î add
+    void addTerm(const Term& t) {//èˆ‡STermå¤§è‡´ç›¸åŒä½†æ­¤å‡½å¼æ˜¯å°ˆé–€åˆ¤æ–·Termè³‡æ–™å‹æ…‹çš„è€Œéåˆå§‹è¼¸å…¥coefåŠexpï¼Œç”¨æ–¼ Mult ä»¥åŠ add
         if (t.coef == 0) return;
         for (int i = 0; i < terms; ++i) {
             if (termArray[i].exp == t.exp) {
@@ -41,43 +41,43 @@ private:
         termArray[terms++] = t;
     }
 
-    void Sort() { // ¨Ì¦¸¤è¥Ñ¤j¨ì¤p±Æ§Ç¡A¨Ã²¾°£«Y¼Æ¬° 0 ªº¶µ¡A¦X¨Ö¥i¯à­«½Æªº¦¸¤è¡]Â²³æ°µªk¡G¥ı±Æ§Ç¦A¦X¨Ö¡^
-        sort(termArray, termArray + terms, [](const Term& a, const Term& b) {//sort(°_©l¦ì¸m, µ²§ô¦ì¸m, ¤ñ¸û¨ç¦¡)¡A³o¬O¤@­Ó lambda ªí¹F¦¡
-            return a.exp > b.exp; // ±q°ª¦¸¨ì§C¦¸
+    void Sort() { // ä¾æ¬¡æ–¹ç”±å¤§åˆ°å°æ’åºï¼Œä¸¦ç§»é™¤ä¿‚æ•¸ç‚º 0 çš„é …ï¼Œåˆä½µå¯èƒ½é‡è¤‡çš„æ¬¡æ–¹ï¼ˆç°¡å–®åšæ³•ï¼šå…ˆæ’åºå†åˆä½µï¼‰
+        sort(termArray, termArray + terms, [](const Term& a, const Term& b) {//sort(èµ·å§‹ä½ç½®, çµæŸä½ç½®, æ¯”è¼ƒå‡½å¼)ï¼Œé€™æ˜¯ä¸€å€‹ lambda è¡¨é”å¼
+            return a.exp > b.exp; // å¾é«˜æ¬¡åˆ°ä½æ¬¡
             });
-        int c = 0;//°O¿ıÂI
+        int c = 0;//è¨˜éŒ„é»
         for (int i = 0; i < terms; ++i) {
-            if (termArray[i].coef == 0) continue;//¥G²¤«Y¼Æ¬° 0 ªº¶µ
-            if (c > 0 && termArray[c - 1].exp == termArray[i].exp) {//§PÂ_«ü¼Æ¶µ¬O§_¬Û¦P
-                termArray[c - 1].coef += termArray[i].coef; // ¬Û¦Pªº¸Ü¦X¨Ö
+            if (termArray[i].coef == 0) continue;//ä¹ç•¥ä¿‚æ•¸ç‚º 0 çš„é …
+            if (c > 0 && termArray[c - 1].exp == termArray[i].exp) {//åˆ¤æ–·æŒ‡æ•¸é …æ˜¯å¦ç›¸åŒ
+                termArray[c - 1].coef += termArray[i].coef; // ç›¸åŒçš„è©±åˆä½µ
             }
             else {
-                termArray[c++] = termArray[i];//¤£¬Û¦Pªº¸Ü´N¬ö¿ı¨ÃÅıc+1
+                termArray[c++] = termArray[i];//ä¸ç›¸åŒçš„è©±å°±ç´€éŒ„ä¸¦è®“c+1
             }
         }
-        terms = c;//§ó·s°O¿ıÂI
-        c = 0;//­«·s¬ö¿ı±`¼Æ«D¹s¶µ
+        terms = c;//æ›´æ–°è¨˜éŒ„é»
+        c = 0;//é‡æ–°ç´€éŒ„å¸¸æ•¸éé›¶é …
         for (int i = 0; i < terms; ++i) {
-            if (termArray[i].coef != 0) termArray[c++] = termArray[i];//¥u¬ö¿ı±`¼Æ«D¹s¶µ
+            if (termArray[i].coef != 0) termArray[c++] = termArray[i];//åªç´€éŒ„å¸¸æ•¸éé›¶é …
         }
-        terms = c;//§ó·s°O¿ıÂI
+        terms = c;//æ›´æ–°è¨˜éŒ„é»
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-    Polynomial(int n = 2) {//¦pªG¨Ï¥ÎªÌ¶Ç¤Jªº®e¶q¤Ó¤p¡]¤p©ó 2¡^¡A¨t²Î¤´·|½T«O¦Ü¤Ö¦³ 2 ªº¹w³]¤j¤p
-        capacity = max(2, n);//¨ú¡u2¡v©M¡un¡v¤§¤¤¸û¤jªº¨º­Ó§@¬°®e¶q
-        termArray = new Term[capacity];// «Ø¥ß°O¾ĞÅé
-        terms = 0;// ²M±¼­ì¦³¤º®e¥H§K¦³´İ­È
+    Polynomial(int n = 2) {//å¦‚æœä½¿ç”¨è€…å‚³å…¥çš„å®¹é‡å¤ªå°ï¼ˆå°æ–¼ 2ï¼‰ï¼Œç³»çµ±ä»æœƒç¢ºä¿è‡³å°‘æœ‰ 2 çš„é è¨­å¤§å°
+        capacity = max(2, n);//å–ã€Œ2ã€å’Œã€Œnã€ä¹‹ä¸­è¼ƒå¤§çš„é‚£å€‹ä½œç‚ºå®¹é‡
+        termArray = new Term[capacity];// å»ºç«‹è¨˜æ†¶é«”
+        terms = 0;// æ¸…æ‰åŸæœ‰å…§å®¹ä»¥å…æœ‰æ®˜å€¼
     }
 
-    Polynomial(const Polynomial& n) {//½Æ»s¤@¥÷¦h¶µ¦¡¥H°µ¤ñ¸û
+    Polynomial(const Polynomial& n) {//è¤‡è£½ä¸€ä»½å¤šé …å¼ä»¥åšæ¯”è¼ƒ
         capacity = n.capacity;
         terms = n.terms;
         termArray = new Term[capacity];
         for (int i = 0; i < terms; ++i) termArray[i] = n.termArray[i];
     }
 
-    Polynomial& operator=(const Polynomial& n) {//³o­Ó¨ç¦¡·|§â­ì¥»ªº¸ê®Æn§¹¾ã½Æ»s¡A¦ı¥Ñ©ó¦³«ü¼Ğ¦¨­û¡]termArray¡^¡A¤£¯à¨Ï¥Îª½±µ«ş¨©§_«h¨â­Óª«¥ó·|¦@¥Î¦P¤@¶ô°O¾ĞÅé¡A·|³y¦¨°O¾ĞÅé¿ù»~
+    Polynomial& operator=(const Polynomial& n) {//é€™å€‹å‡½å¼æœƒæŠŠåŸæœ¬çš„è³‡æ–™nå®Œæ•´è¤‡è£½ï¼Œä½†ç”±æ–¼æœ‰æŒ‡æ¨™æˆå“¡ï¼ˆtermArrayï¼‰ï¼Œä¸èƒ½ä½¿ç”¨ç›´æ¥æ‹·è²å¦å‰‡å…©å€‹ç‰©ä»¶æœƒå…±ç”¨åŒä¸€å¡Šè¨˜æ†¶é«”ï¼Œæœƒé€ æˆè¨˜æ†¶é«”éŒ¯èª¤
         if (this == &n) return *this;
         delete[] termArray;
         capacity = n.capacity;
@@ -87,39 +87,39 @@ public:
         return *this;
     }
 
-    ~Polynomial() {//Polynomial¸Ñºc¤l
-        delete[] termArray;//µ{¦¡°õ¦æ§¹ªº³Ì«á¸Ñ°£°O¾ĞÅé°ÊºA°t¸m¥H§K²§±`
+    ~Polynomial() {//Polynomialè§£æ§‹å­
+        delete[] termArray;//ç¨‹å¼åŸ·è¡Œå®Œçš„æœ€å¾Œè§£é™¤è¨˜æ†¶é«”å‹•æ…‹é…ç½®ä»¥å…ç•°å¸¸
     }
 
-    void STerm(float coef, int exp) {// ±N¨Ï¥ÎªÌ¿é¤Jªº¶µ¥[¤J¡]·|¦X¨Ö¬Û¦P¦¸¤è¡^
-        if (coef == 0) return; // ±`¼Æ¶µµ¥©ó"0"ª½±µ©¿²¤ 
-        for (int i = 0; i < terms; ++i) {//§PÂ_°O¾ĞÅé°}¦C(termArray)¤¤¬O§_¦³¬Û¦Pªº«ü¼Æ¶µ
+    void STerm(float coef, int exp) {// å°‡ä½¿ç”¨è€…è¼¸å…¥çš„é …åŠ å…¥ï¼ˆæœƒåˆä½µç›¸åŒæ¬¡æ–¹ï¼‰
+        if (coef == 0) return; // å¸¸æ•¸é …ç­‰æ–¼"0"ç›´æ¥å¿½ç•¥ 
+        for (int i = 0; i < terms; ++i) {//åˆ¤æ–·è¨˜æ†¶é«”é™£åˆ—(termArray)ä¸­æ˜¯å¦æœ‰ç›¸åŒçš„æŒ‡æ•¸é …
             if (termArray[i].exp == exp) {
-                termArray[i].coef += coef;//¦³ªº¸Üª½±µ¦X¨Ö
-                return;//¨Ãµ²§ô
+                termArray[i].coef += coef;//æœ‰çš„è©±ç›´æ¥åˆä½µ
+                return;//ä¸¦çµæŸ
             }
         }
-        NewArray(terms + 1);//¨S¦³ªº¸ÜÀË¬d°O¾ĞÅéªÅ¶¡¡A¶Ç¤J¥Ø«eªÅ¶¡¥[¤@ªº¤j¤p¥[¥H§PÂ_
-        termArray[terms++] = Term(coef, exp);//¨Ã±N±`¼Æ¸ò«ü¼Æ¥[¤J°O¾ĞÅé
+        NewArray(terms + 1);//æ²’æœ‰çš„è©±æª¢æŸ¥è¨˜æ†¶é«”ç©ºé–“ï¼Œå‚³å…¥ç›®å‰ç©ºé–“åŠ ä¸€çš„å¤§å°åŠ ä»¥åˆ¤æ–·
+        termArray[terms++] = Term(coef, exp);//ä¸¦å°‡å¸¸æ•¸è·ŸæŒ‡æ•¸åŠ å…¥è¨˜æ†¶é«”
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Polynomial Add(const Polynomial& n) const {//¦h¶µ¦¡¥[ªk
-        Polynomial a;// §â¨âÃäªº¶µ´¡¤J a¡]addTerm ·|¦X¨Ö¬Û¦P¦¸¤è¡^
-        for (int i = 0; i < terms; ++i) a.addTerm(termArray[i]);//¦h¶µ¦¡¤@¦X¨Ö
-        for (int j = 0; j < n.terms; ++j) a.addTerm(n.termArray[j]);//¦h¶µ¦¡¤G¦X¨Ö
-        a.Sort();//±Æ§Ç
+    Polynomial Add(const Polynomial& n) const {//å¤šé …å¼åŠ æ³•
+        Polynomial a;// æŠŠå…©é‚Šçš„é …æ’å…¥ aï¼ˆaddTerm æœƒåˆä½µç›¸åŒæ¬¡æ–¹ï¼‰
+        for (int i = 0; i < terms; ++i) a.addTerm(termArray[i]);//å¤šé …å¼ä¸€åˆä½µ
+        for (int j = 0; j < n.terms; ++j) a.addTerm(n.termArray[j]);//å¤šé …å¼äºŒåˆä½µ
+        a.Sort();//æ’åº
         return a;
     }
 
-    Polynomial Mult(const Polynomial& n) const {//¦h¶µ¦¡­¼ªk
-        Polynomial p;// §â¨â¦h¶µ¦¡¨C¤@¶µ±`¼Æ¶µ¥H¤Î«ü¼Æ¶µ¬Û­¼¨Ã¶Ç¤J·s¦h¶µ¦¡ªÅ¶¡ t¡]addTerm ·|¦X¨Ö¬Û¦P¦¸¤è¡^
-        for (int i = 0; i < terms; ++i) {//¦h¶µ¦¡¤@²Ä¤@¶µ¶}©l
-            for (int j = 0; j < n.terms; ++j) {//¦h¶µ¦¡¤GÀY¨ì§À¶µ
+    Polynomial Mult(const Polynomial& n) const {//å¤šé …å¼ä¹˜æ³•
+        Polynomial p;// æŠŠå…©å¤šé …å¼æ¯ä¸€é …å¸¸æ•¸é …ä»¥åŠæŒ‡æ•¸é …ç›¸ä¹˜ä¸¦å‚³å…¥æ–°å¤šé …å¼ç©ºé–“ tï¼ˆaddTerm æœƒåˆä½µç›¸åŒæ¬¡æ–¹ï¼‰
+        for (int i = 0; i < terms; ++i) {//å¤šé …å¼ä¸€ç¬¬ä¸€é …é–‹å§‹
+            for (int j = 0; j < n.terms; ++j) {//å¤šé …å¼äºŒé ­åˆ°å°¾é …
                 Term t(termArray[i].coef * n.termArray[j].coef, termArray[i].exp + n.termArray[j].exp);
-                p.addTerm(t);//·s¦h¶µ¦¡¦X¨Ö
+                p.addTerm(t);//æ–°å¤šé …å¼åˆä½µ
             }
         }
-        p.Sort();//±Æ§Ç
+        p.Sort();//æ’åº
         return p;
     }
 
@@ -132,49 +132,49 @@ public:
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-       //¬°¤°»ò­n¥Î¨ì¿é¤J¿é¥X¹Bºâ¤l¦h¸ü©O?
-       //³o¨â­Ó¹Bºâ¤l­ì¥»¥u»{±o¤º«Ø«¬§O¡A¥i¬O¦pªG§A·Q­nª½±µ¹ï¡u¦Û­qÃş§O¡v¿é¤J©Î¿é¥X¡]Polynomial¡^´N¤£ª¾¹D­n«ç»ò¦L¡A©Ò¥H¨Ï¥Î¹Bºâ¤l¦h¸ü¨Ó§iª¾½sÄ¶¾¹
+       //ç‚ºä»€éº¼è¦ç”¨åˆ°è¼¸å…¥è¼¸å‡ºé‹ç®—å­å¤šè¼‰å‘¢?
+       //é€™å…©å€‹é‹ç®—å­åŸæœ¬åªèªå¾—å…§å»ºå‹åˆ¥ï¼Œå¯æ˜¯å¦‚æœä½ æƒ³è¦ç›´æ¥å°ã€Œè‡ªè¨‚é¡åˆ¥ã€è¼¸å…¥æˆ–è¼¸å‡ºï¼ˆPolynomialï¼‰å°±ä¸çŸ¥é“è¦æ€éº¼å°ï¼Œæ‰€ä»¥ä½¿ç”¨é‹ç®—å­å¤šè¼‰ä¾†å‘ŠçŸ¥ç·¨è­¯å™¨
 
-    friend istream& operator>>(istream& a, Polynomial& pin) {// ¿é¤J¾Ş§@¥O¹Bºâ¤l¦h¸ü¡Gcin >> p;
-        pin.terms = 0;// ²M±¼­ì¦³¤º®e¥H§K¦³´İ­È
-        cout << "½Ğ¿é¤J¦h¶µ¦¡­Ó¼Æ: ";
+    friend istream& operator>>(istream& a, Polynomial& pin) {// è¼¸å…¥æ“ä½œä»¤é‹ç®—å­å¤šè¼‰ï¼šcin >> p;
+        pin.terms = 0;// æ¸…æ‰åŸæœ‰å…§å®¹ä»¥å…æœ‰æ®˜å€¼
+        cout << "è«‹è¼¸å…¥å¤šé …å¼å€‹æ•¸: ";
         int n;
         a >> n;
-        cout << "½Ğ¿é¤J¦h¶µ¦¡´ú¸ê, EX. 3 2  ¿é¥X: 3x^2\n";
+        cout << "è«‹è¼¸å…¥å¤šé …å¼æ¸¬è³‡, EX. 3 2  è¼¸å‡º: 3x^2\n";
         for (int i = 0; i < n; ++i) {
-            float c; int e;//±`¼Æ¥H¤Î«ü¼Æ¶µ
+            float c; int e;//å¸¸æ•¸ä»¥åŠæŒ‡æ•¸é …
             a >> c >> e;
-            pin.STerm(c, e); // STerm ·|±N¬Û¦Pªº«ü¼Æ¶µ¶i¦æ±`¼Æ¶µ¦X¨Ö
+            pin.STerm(c, e); // STerm æœƒå°‡ç›¸åŒçš„æŒ‡æ•¸é …é€²è¡Œå¸¸æ•¸é …åˆä½µ
         }
-        pin.Sort();//Sort·|±NtermArray°O¾ĞÅé¤º®e±Æ§Ç
+        pin.Sort();//Sortæœƒå°‡termArrayè¨˜æ†¶é«”å…§å®¹æ’åº
         return a;
     }
 
-    friend ostream& operator<<(ostream& t, const Polynomial& pin) {// ¿é¥X¾Ş§@¥O¹Bºâ¤l¦h¸ü¡Gcout << t;
-        if (pin.terms == 0) {//¦h¶µ¦¡¥u¦³¹s¥u»İ¿é¥X¹s
+    friend ostream& operator<<(ostream& t, const Polynomial& pin) {// è¼¸å‡ºæ“ä½œä»¤é‹ç®—å­å¤šè¼‰ï¼šcout << t;
+        if (pin.terms == 0) {//å¤šé …å¼åªæœ‰é›¶åªéœ€è¼¸å‡ºé›¶
             t << "0";
             return t;
         }
         for (int i = 0; i < pin.terms; ++i) {
-            float c = pin.termArray[i].coef;//«ü¬£¸g¹L±Æ§Ç«áªº±`¼Æ¶µ
-            int e = pin.termArray[i].exp;//©Ò¹ïÀ³ªº«ü¼Æ¶µ
-            if (i == 0) {//§PÂ_²Ä¤@¶µ¡A­Y«Y¼Æ¬° -1 ¥B¦¸¤è !=0¡AÅã¥Ü "-" ¤£Åã¥Ü 1
+            float c = pin.termArray[i].coef;//æŒ‡æ´¾ç¶“éæ’åºå¾Œçš„å¸¸æ•¸é …
+            int e = pin.termArray[i].exp;//æ‰€å°æ‡‰çš„æŒ‡æ•¸é …
+            if (i == 0) {//åˆ¤æ–·ç¬¬ä¸€é …ï¼Œè‹¥ä¿‚æ•¸ç‚º -1 ä¸”æ¬¡æ–¹ !=0ï¼Œé¡¯ç¤º "-" ä¸é¡¯ç¤º 1
                 if (c == -1 && e != 0) t << "-";
                 else if (c != 1 || e == 0) t << c;
             }
             else {
-                if (c < 0) {//­Y«Y¼Æ¬° -1 ¥B¦¸¤è !=0¡AÅã¥Ü "-" ¤£Åã¥Ü 1
+                if (c < 0) {//è‹¥ä¿‚æ•¸ç‚º -1 ä¸”æ¬¡æ–¹ !=0ï¼Œé¡¯ç¤º "-" ä¸é¡¯ç¤º 1
                     if (c == -1 && e != 0) t << " - ";
-                    else t << " - " << fabs(c);//¥H¥~ªºÅã¥Ü "-" ¥H¤Îµ´¹ï­È«áªº±`¼Æ¶µ
+                    else t << " - " << fabs(c);//ä»¥å¤–çš„é¡¯ç¤º "-" ä»¥åŠçµ•å°å€¼å¾Œçš„å¸¸æ•¸é …
                 }
                 else {
-                    if (c == 1 && e != 0) t << " + ";//­Y«Y¼Æ¬° + ¥B¦¸¤è !=0¡AÅã¥Ü "+" ¥H¤Î±`¼Æ¶µ
+                    if (c == 1 && e != 0) t << " + ";//è‹¥ä¿‚æ•¸ç‚º + ä¸”æ¬¡æ–¹ !=0ï¼Œé¡¯ç¤º "+" ä»¥åŠå¸¸æ•¸é …
                     else t << " + " << c;
                 }
             }
-            if (e != 0) {// §PÂ_¦¸¤è¬O§_¬°¹s
-                if (!(i == 0 && (c == -1))) t << "x";//±`¼Æ¶µ¤£µ¥©ó-1¥B¤£¬O²Ä¤@¶µ´N¿é¥X¤@­Ó¥¼ª¾¼Æ"x"
-                if (e != 1) t << "^" << e;//¦¸¤è¶µ¤£µ¥©ó1´N¿é¥X¤@­Ó"^"ªí¥Ü¦¸¤è¦ì
+            if (e != 0) {// åˆ¤æ–·æ¬¡æ–¹æ˜¯å¦ç‚ºé›¶
+                if (!(i == 0 && (c == -1))) t << "x";//å¸¸æ•¸é …ä¸ç­‰æ–¼-1ä¸”ä¸æ˜¯ç¬¬ä¸€é …å°±è¼¸å‡ºä¸€å€‹æœªçŸ¥æ•¸"x"
+                if (e != 1) t << "^" << e;//æ¬¡æ–¹é …ä¸ç­‰æ–¼1å°±è¼¸å‡ºä¸€å€‹"^"è¡¨ç¤ºæ¬¡æ–¹ä½
             }
         }
         return t;
@@ -183,27 +183,28 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 int main() {
-    Polynomial p1, p2;//«Å§i¨â­Ó¦h¶µ¦¡
-    cout << "¿é¤J²Ä¤@­Ó¦h¶µ¦¡\n";
-    cin >> p1;//©I¥s istream
-    cout << "¿é¤J²Ä¤G­Ó¦h¶µ¦¡\n";
-    cin >> p2;//©I¥s istream
+    Polynomial p1, p2;//å®£å‘Šå…©å€‹å¤šé …å¼
+    cout << "è¼¸å…¥ç¬¬ä¸€å€‹å¤šé …å¼\n";
+    cin >> p1;//å‘¼å« istream
+    cout << "è¼¸å…¥ç¬¬äºŒå€‹å¤šé …å¼\n";
+    cin >> p2;//å‘¼å« istream
 
-    // Åã¥Ü¨â­Ó¦h¶µ¦¡
-    cout << "\nP1(x) = " << p1 << "\n";//²Ä¤@¶µ
-    cout << "P2(x) = " << p2 << "\n";//²Ä¤G¶µ
+    // é¡¯ç¤ºå…©å€‹å¤šé …å¼
+    cout << "\nP1(x) = " << p1 << "\n";//ç¬¬ä¸€é …
+    cout << "P2(x) = " << p2 << "\n";//ç¬¬äºŒé …
 
-    // ¬Û¥[»P¬Û­¼µ²ªG©Ò¹ïÀ³ªºµ²ªG
+    // ç›¸åŠ èˆ‡ç›¸ä¹˜çµæœæ‰€å°æ‡‰çš„çµæœ
     Polynomial s = p1.Add(p2);
-    cout << "\nP1 + P2 = " << s << "\n";//¥[ªk¦h¶µ¦¡
+    cout << "\nP1 + P2 = " << s << "\n";//åŠ æ³•å¤šé …å¼
     Polynomial p = p1.Mult(p2);
-    cout << "P1 * P2 = " << p << "\n";//­¼ªk¦h¶µ¦¡
+    cout << "P1 * P2 = " << p << "\n";//ä¹˜æ³•å¤šé …å¼
 
-    float x; // ¥N¤J x ­pºâ¦h¶µ¦¡¥|ºû¹Bºâ«áªºÁ`µ²ªG
-    cout << "\n½Ğ¿é¤J­n¥N¤Jªº x ­È¡G";
+    float x; // ä»£å…¥ x è¨ˆç®—å¤šé …å¼å››ç¶­é‹ç®—å¾Œçš„ç¸½çµæœ
+    cout << "\nè«‹è¼¸å…¥è¦ä»£å…¥çš„ x å€¼ï¼š";
     cin >> x;
-    cout << "P1(" << x << ") = " << p1.Eval(x) << endl;//¥[ªk¦h¶µ¦¡ P1(X)
-    cout << "P2(" << x << ") = " << p2.Eval(x) << endl;//­¼ªk¦h¶µ¦¡ P2(X)
+    cout << "P1(" << x << ") = " << p1.Eval(x) << endl;//åŠ æ³•å¤šé …å¼ P1(X)
+    cout << "P2(" << x << ") = " << p2.Eval(x) << endl;//ä¹˜æ³•å¤šé …å¼ P2(X)
 
-    return 0;//°õ¦æµ²§ô¦^¶Ç0
+    return 0;//åŸ·è¡ŒçµæŸå›å‚³0
 }
+
