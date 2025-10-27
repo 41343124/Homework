@@ -199,12 +199,13 @@ int main() {
     Polynomial p = p1.Mult(p2);
     cout << "P1 * P2 = " << p << "\n";//乘法多項式
 
-    float x; // 代入 x 計算多項式四維運算後的總結果
+    float x; // 代入 x 計算多項式後的總結果
     cout << "\n請輸入要代入的 x 值：";
     cin >> x;
-    cout << "P1(" << x << ") = " << p1.Eval(x) << endl;//加法多項式 P1(X)
-    cout << "P2(" << x << ") = " << p2.Eval(x) << endl;//乘法多項式 P2(X)
+    cout << "P1(" << x << ") = " << p1.Eval(x) << endl;//多項式 P1(X)
+    cout << "P2(" << x << ") = " << p2.Eval(x) << endl;//多項式 P2(X)
 
     return 0;//執行結束回傳0
 }
+
 
