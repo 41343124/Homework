@@ -2,7 +2,7 @@
 
 # 41343124
 
-## 作業二 (Polynomial)
+## 作業三 (Polynomial)
 
 ## 解題說明
 
@@ -29,213 +29,325 @@ Microsoft Visual Studio 2019 C++
 
 ```cpp
 //41343124 四資工二甲 張豈睿
-#include <iostream>//此題目為運用多項式(Polynomial)來進行四維運算中的加法以及乘法。
-#include <algorithm>//這個標頭檔提供大量常用的演算法函式，但在這個題目中只會用到sort()排序。
-#include <cmath>//這個標頭檔是 C++ 數學函式庫，包含各種數學運算函式，題目中用於多項式的 Eval() 函式，計算 pow(x, exp)。
+#include <iostream>
+#include <cmath>
 using namespace std;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Term {// Term 類別
-    friend class Polynomial;//將Polynomial加入友誼類別就能使用Polynomial類別的私有項內容了
+
+template <class T> class Polynomial;
+template <class T>
+class Node {
+    friend class Polynomial<T>;
 public:
-    float coef;//常數項變數
-    int exp;//指數項變數
-    Term(float c = 0, int e = 0) : coef(c), exp(e) {}//紀錄Polynomial的常數及指數
+    int exp;
+    T coef;
+    Node<T>* link;
+    Node(T c = 0, int e = 0, Node<T>* p = nullptr)
+        : coef(c), exp(e), link(p) {}
 };
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-class Polynomial {// Polynomial 類別
+
+////////////////////////////////////////////////////////////////
+
+template <class T>
+class Polynomial {
 private:
-    Term* termArray;//記錄點記憶體
-    int capacity;//記憶體的空間小記錄點
-    int terms;//儲存非零項變數
+    Node<T>* head;
 
-    void NewArray(int n1) {  // 如果需要，擴增容量
-        if (n1 <= capacity) return;//判斷記憶體空間是否足夠
-        int n2 = capacity;//不足時將現在的空間大小存起來
-        while (n2 < n1) n2 *= 2;//並加兩倍的空間，概念2的N次方倍增加
-        Term* n3 = new Term[n2];//建立新的記憶體空間
-        for (int i = 0; i < terms; ++i) n3[i] = termArray[i];//並將現在的空間內容轉移
-        delete[] termArray;//刪除原本的記憶體
-        termArray = n3;/////////////////////////////////注意!! 此時已刪除原本指標項的記憶體，需要重新指項新的記憶體空間
-        capacity = n2;//傳入新的空間大小
-    }
-
-    void addTerm(const Term& t) {//與STerm大致相同但此函式是專門判斷Term資料型態的而非初始輸入coef及exp，用於 Mult 以及 add
-        if (t.coef == 0) return;
-        for (int i = 0; i < terms; ++i) {
-            if (termArray[i].exp == t.exp) {
-                termArray[i].coef += t.coef;
-                return;
-            }
-        }
-        NewArray(terms + 1);
-        termArray[terms++] = t;
-    }
-
-    void Sort() { // 依次方由大到小排序，並移除係數為 0 的項，合併可能重複的次方（簡單做法：先排序再合併）
-        sort(termArray, termArray + terms, [](const Term& a, const Term& b) {//sort(起始位置, 結束位置, 比較函式)，這是一個 lambda 表達式
-            return a.exp > b.exp; // 從高次到低次
-            });
-        int c = 0;//記錄點
-        for (int i = 0; i < terms; ++i) {
-            if (termArray[i].coef == 0) continue;//乎略係數為 0 的項
-            if (c > 0 && termArray[c - 1].exp == termArray[i].exp) {//判斷指數項是否相同
-                termArray[c - 1].coef += termArray[i].coef; // 相同的話合併
-            }
-            else {
-                termArray[c++] = termArray[i];//不相同的話就紀錄並讓c+1
-            }
-        }
-        terms = c;//更新記錄點
-        c = 0;//重新紀錄常數非零項
-        for (int i = 0; i < terms; ++i) {
-            if (termArray[i].coef != 0) termArray[c++] = termArray[i];//只紀錄常數非零項
-        }
-        terms = c;//更新記錄點
-    }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 public:
-    Polynomial(int n = 2) {//如果使用者傳入的容量太小（小於 2），系統仍會確保至少有 2 的預設大小
-        capacity = max(2, n);//取「2」和「n」之中較大的那個作為容量
-        termArray = new Term[capacity];// 建立記憶體
-        terms = 0;// 清掉原有內容以免有殘值
-    }
+    Polynomial();
+    Polynomial(const Polynomial<T>& a);
+    Polynomial<T>& operator=(const Polynomial<T>& a);
+    Polynomial<T> operator+(const Polynomial<T>& b) const;
+    Polynomial<T> operator-(const Polynomial<T>& b) const;
+    Polynomial<T> operator*(const Polynomial<T>& b) const;
+    Polynomial<T> operator/(const Polynomial<T>& b) const;
+    Polynomial<T> R(const Polynomial<T>& b) const;
+    void Newnode(T coef, int exp);
+    void del();
+    ~Polynomial();
 
-    Polynomial(const Polynomial& n) {//複製一份多項式以做比較
-        capacity = n.capacity;
-        terms = n.terms;
-        termArray = new Term[capacity];
-        for (int i = 0; i < terms; ++i) termArray[i] = n.termArray[i];
-    }
-
-    Polynomial& operator=(const Polynomial& n) {//這個函式會把原本的資料n完整複製，但由於有指標成員（termArray），不能使用直接拷貝否則兩個物件會共用同一塊記憶體，會造成記憶體錯誤
-        if (this == &n) return *this;
-        delete[] termArray;
-        capacity = n.capacity;
-        terms = n.terms;
-        termArray = new Term[capacity];
-        for (int i = 0; i < terms; ++i) termArray[i] = n.termArray[i];
-        return *this;
-    }
-
-    ~Polynomial() {//Polynomial解構子
-        delete[] termArray;//程式執行完的最後解除記憶體動態配置以免異常
-    }
-
-    void STerm(float coef, int exp) {// 將使用者輸入的項加入（會合併相同次方）
-        if (coef == 0) return; // 常數項等於"0"直接忽略 
-        for (int i = 0; i < terms; ++i) {//判斷記憶體陣列(termArray)中是否有相同的指數項
-            if (termArray[i].exp == exp) {
-                termArray[i].coef += coef;//有的話直接合併
-                return;//並結束
-            }
-        }
-        NewArray(terms + 1);//沒有的話檢查記憶體空間，傳入目前空間加一的大小加以判斷
-        termArray[terms++] = Term(coef, exp);//並將常數跟指數加入記憶體
-    }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    Polynomial Add(const Polynomial& n) const {//多項式加法
-        Polynomial a;// 把兩邊的項插入 a（addTerm 會合併相同次方）
-        for (int i = 0; i < terms; ++i) a.addTerm(termArray[i]);//多項式一合併
-        for (int j = 0; j < n.terms; ++j) a.addTerm(n.termArray[j]);//多項式二合併
-        a.Sort();//排序
-        return a;
-    }
-
-    Polynomial Mult(const Polynomial& n) const {//多項式乘法
-        Polynomial p;// 把兩多項式每一項常數項以及指數項相乘並傳入新多項式空間 t（addTerm 會合併相同次方）
-        for (int i = 0; i < terms; ++i) {//多項式一第一項開始
-            for (int j = 0; j < n.terms; ++j) {//多項式二頭到尾項
-                Term t(termArray[i].coef * n.termArray[j].coef, termArray[i].exp + n.termArray[j].exp);
-                p.addTerm(t);//新多項式合併
-            }
-        }
-        p.Sort();//排序
-        return p;
-    }
-
-    float Eval(float f) const {
-        float sum = 0;
-        for (int i = 0; i < terms; ++i) {
-            sum += termArray[i].coef * powf(f, termArray[i].exp);
-        }
-        return sum;
-    }
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-       //為什麼要用到輸入輸出運算子多載呢?
-       //這兩個運算子原本只認得內建型別，可是如果你想要直接對「自訂類別」輸入或輸出（Polynomial）就不知道要怎麼印，所以使用運算子多載來告知編譯器
-
-    friend istream& operator>>(istream& a, Polynomial& pin) {// 輸入操作令運算子多載：cin >> p;
-        pin.terms = 0;// 清掉原有內容以免有殘值
-        cout << "請輸入多項式個數: ";
+    friend istream& operator>>(istream& in, Polynomial<T>& x) {
         int n;
-        a >> n;
-        cout << "請輸入多項式測資, EX. 3 2  輸出: 3x^2\n";
-        for (int i = 0; i < n; ++i) {
-            float c; int e;//常數以及指數項
-            a >> c >> e;
-            pin.STerm(c, e); // STerm 會將相同的指數項進行常數項合併
+        in >> n;
+        for (int i = 0; i < n; i++) {
+            T coef;
+            int exp;
+            in >> coef >> exp;
+            x.Newnode(coef, exp);
         }
-        pin.Sort();//Sort會將termArray記憶體內容排序
-        return a;
+        return in;
     }
 
-    friend ostream& operator<<(ostream& t, const Polynomial& pin) {// 輸出操作令運算子多載：cout << t;
-        if (pin.terms == 0) {//多項式只有零只需輸出零
-            t << "0";
-            return t;
-        }
-        for (int i = 0; i < pin.terms; ++i) {
-            float c = pin.termArray[i].coef;//指派經過排序後的常數項
-            int e = pin.termArray[i].exp;//所對應的指數項
-            if (i == 0) {//判斷第一項，若係數為 -1 且次方 !=0，顯示 "-" 不顯示 1
-                if (c == -1 && e != 0) t << "-";
-                else if (c != 1 || e == 0) t << c;
+    friend ostream& operator<<(ostream& out, const Polynomial<T>& x) {
+        Node<T>* p = x.head->link;
+        bool first = true;
+
+        while (p != x.head) {
+            T c = p->coef;
+            int e = p->exp;
+            if (!first) {
+                if (c > 0) out << " + ";
+                else       out << " - ";
             }
             else {
-                if (c < 0) {//若係數為 -1 且次方 !=0，顯示 "-" 不顯示 1
-                    if (c == -1 && e != 0) t << " - ";
-                    else t << " - " << fabs(c);//以外的顯示 "-" 以及絕對值後的常數項
-                }
-                else {
-                    if (c == 1 && e != 0) t << " + ";//若係數為 + 且次方 !=0，顯示 "+" 以及常數項
-                    else t << " + " << c;
-                }
+                if (c < 0) out << "-";
             }
-            if (e != 0) {// 判斷次方是否為零
-                if (!(i == 0 && (c == -1))) t << "x";//常數項不等於-1且不是第一項就輸出一個未知數"x"
-                if (e != 1) t << "^" << e;//次方項不等於1就輸出一個"^"表示次方位
+
+            T absCoef = (c < 0) ? -c : c;
+            if (e == 0) {
+                out << absCoef;
             }
+            else {
+                if (absCoef != 1)
+                    out << absCoef;
+
+                out << "x";
+
+                if (e != 1)
+                    out << "^" << e;
+            }
+
+            first = false;
+            p = p->link;
         }
-        return t;
+        if (first)
+            out << "0";
+
+        return out;
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T>::Polynomial() {
+    head = new Node<T>();
+    head->link = head;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T>::Polynomial(const Polynomial<T>& a) {
+    head = new Node<T>();
+    head->link = head;
+    Node<T>* p = a.head->link;
+    while (p != a.head) {
+        Newnode(p->coef, p->exp);
+        p = p->link;
+    }
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T>& Polynomial<T>::operator=(const Polynomial<T>& a) {
+    if (this == &a) return *this;
+    del();
+    Node<T>* p = a.head->link;
+    while (p != a.head) {
+        Newnode(p->coef, p->exp);
+        p = p->link;
+    }
+    return *this;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T>::~Polynomial() {
+    del();
+    delete head;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+void Polynomial<T>::del() {
+    Node<T>* p = head->link;
+    while (p != head) {
+        Node<T>* t = p;
+        p = p->link;
+        delete t;
+    }
+    head->link = head;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+void Polynomial<T>::Newnode(T coef, int exp) {
+    if (coef == 0) return;
+
+    Node<T>* p = head;
+    Node<T>* q = head->link;
+
+    while (q != head && q->exp > exp) {
+        p = q;
+        q = q->link;
+    }
+
+    if (q != head && q->exp == exp) {
+        q->coef += coef;
+        if (q->coef == 0) {
+            p->link = q->link;
+            delete q;
+        }
+        return;
+    }
+
+    p->link = new Node<T>(coef, exp, q);
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& b) const {
+    Polynomial<T> c;
+    Node<T>* p = head->link;
+    Node<T>* q = b.head->link;
+
+    while (p != head && q != b.head) {
+        if (p->exp == q->exp) {
+            c.Newnode(p->coef + q->coef, p->exp);
+            p = p->link;
+            q = q->link;
+        }
+        else if (p->exp > q->exp) {
+            c.Newnode(p->coef, p->exp);
+            p = p->link;
+        }
+        else {
+            c.Newnode(q->coef, q->exp);
+            q = q->link;
+        }
+    }
+
+    while (p != head) {
+        c.Newnode(p->coef, p->exp);
+        p = p->link;
+    }
+    while (q != b.head) {
+        c.Newnode(q->coef, q->exp);
+        q = q->link;
+    }
+
+    return c;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T> Polynomial<T>::operator-(const Polynomial<T>& b) const {
+    Polynomial<T> c;
+    Node<T>* p = head->link;
+    Node<T>* q = b.head->link;
+
+    while (p != head && q != b.head) {
+        if (p->exp == q->exp) {
+            c.Newnode(p->coef - q->coef, p->exp);
+            p = p->link;
+            q = q->link;
+        }
+        else if (p->exp > q->exp) {
+            c.Newnode(p->coef, p->exp);
+            p = p->link;
+        }
+        else {
+            c.Newnode(-q->coef, q->exp);
+            q = q->link;
+        }
+    }
+
+    while (p != head) {
+        c.Newnode(p->coef, p->exp);
+        p = p->link;
+    }
+    while (q != b.head) {
+        c.Newnode(-q->coef, q->exp);
+        q = q->link;
+    }
+
+    return c;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& b) const {
+    Polynomial<T> c;
+    for (Node<T>* p = head->link; p != head; p = p->link) {
+        for (Node<T>* q = b.head->link; q != b.head; q = q->link) {
+            c.Newnode(p->coef * q->coef, p->exp + q->exp);
+        }
+    }
+    return c;
+}
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T> Polynomial<T>::operator/(const Polynomial<T>& b) const {
+    Polynomial<T> D, S(*this);
+
+    if (b.head->link == b.head) {
+        return D;
+    }
+
+    Node<T>* bLead = b.head->link;
+
+    while (S.head->link != S.head &&
+        S.head->link->exp >= bLead->exp) {
+
+        T coef = S.head->link->coef / bLead->coef;
+        int exp = S.head->link->exp - bLead->exp;
+
+        Polynomial<T> term;
+        term.Newnode(coef, exp);
+
+        D = D + term;
+        S = S - (term * b);
+    }
+
+    return D;
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+Polynomial<T> Polynomial<T>::R(const Polynomial<T>& b) const {
+    Polynomial<T> S(*this);
+
+    if (b.head->link == b.head)
+        return S;
+
+    Node<T>* bLead = b.head->link;
+
+    while (S.head->link != S.head &&
+        S.head->link->exp >= bLead->exp) {
+
+        T coef = S.head->link->coef / bLead->coef;
+        int exp = S.head->link->exp - bLead->exp;
+
+        Polynomial<T> term;
+        term.Newnode(coef, exp);
+
+        S = S - (term * b);
+    }
+
+    return S;
+}
+
+////////////////////////////////////////////////////////////////
 int main() {
-    Polynomial p1, p2;//宣告兩個多項式
-    cout << "輸入第一個多項式\n";
-    cin >> p1;//呼叫 istream
-    cout << "輸入第二個多項式\n";
-    cin >> p2;//呼叫 istream
+    Polynomial<int> A, B;
 
-    // 顯示兩個多項式
-    cout << "\nP1(x) = " << p1 << "\n";//第一項
-    cout << "P2(x) = " << p2 << "\n";//第二項
+    cin >> A;
+    cin >> B;
 
-    // 相加與相乘結果所對應的結果
-    Polynomial s = p1.Add(p2);
-    cout << "\nP1 + P2 = " << s << "\n";//加法多項式
-    Polynomial p = p1.Mult(p2);
-    cout << "P1 * P2 = " << p << "\n";//乘法多項式
+    cout << "A: " << A << endl;
+    cout << "B: " << B << endl;
 
-    float x; // 代入 x 計算多項式後的總結果
-    cout << "\n請輸入要代入的 x 值：";
-    cin >> x;
-    cout << "P1(" << x << ") = " << p1.Eval(x) << endl;//多項式 P1(X)
-    cout << "P2(" << x << ") = " << p2.Eval(x) << endl;//多項式 P2(X)
+    cout << "A + B: " << (A + B) << endl;
+    cout << "A - B: " << (A - B) << endl;
+    cout << "A * B: " << (A * B) << endl;
+    Polynomial<int> D = A / B;
+    Polynomial<int> S = A.R(B);
 
-    return 0;//執行結束回傳0
+    cout << "A / B = " << D << endl;
+    cout << "A % B = " << S << endl;
+
+    cout << "41343124.¬v¨¡";//¦¹¤D¨¾©e¼Ð°O
+
+    return 0;
+
 }
 ```
 
