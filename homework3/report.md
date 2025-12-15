@@ -2,19 +2,31 @@
 
 # 41343124
 
-## 作業三 (Polynomial)
+## 作業三 (Linked lists representation Polynomials)
+
+## 前言
+
+首先我認真覺得把一個程式拆成多個名詞來表示成題目真的是吃飽撐著，比如Chain/ChainNode等不用特別標示出來吧 !!
+因為題目就是用Linked lists去實作Polynomial啊，不如說是逼你把裡面的函式名稱限制的如此軍事化那不就大家的程式都長得差不多了嗎 ??
 
 ## 解題說明
 
-本題目為運用多項式(Polynomial)來進行四維運算中的加法以及乘法，其中會用到algorithm及cmath這兩個標頭檔。
-
-1.```<algorithm>``` 這個標頭檔提供大量常用的演算法函式，但在這個題目中只會用到sort()排序，主要適用於在輸入兩個多項式以及合併前最後輸出等使用。
-
-2.```<cmath>``` 這個標頭檔是 C++ 數學函式庫，包含各種數學運算函式，題目中用於多項式的 Eval() 函式，計算 pow(x, exp)。
+本題是使用Linked lists來實作Polynomial的題目同時解決Polynomial本身會因為預設空間不足所導致的呼叫還是擴充的問題，
+而題目有要求實作出(加、減、乘、除)的四則運算但除法會有餘數問題所以必須多寫一個餘數的樣本函式非常靠杯，然後題目體面的
+Chain()/ChainNode()......等到底是來做什麼的我也不知道但因為沒有特別要求要做什麼我也就沒有特別輸出了，反正我的程式裡
+有差不多的功能有特別標示名稱。
 
 ### 解題策略
 
-最開始會以讓使用者輸入兩多項後，進行istream and ostream運算子的運作，至於為什麼要用到輸入輸出運算子多載呢?因為這兩個運算子原本只認得內建型別，可是如果你想要直接對「自訂類別」輸入或輸出（Polynomial）就不知道要怎麼印，所以使用運算子多載來告知編譯器，再來進行運算子輸入的合併(有可能有相同指數)以及排序，最後將兩多項式進行四則運算以及帶入參數，在運算過程中的每個獨立指數項都會帶入動態記憶體termArray中，且必須時刻判斷空間是否不足，不足時要進行記憶體擴充，方法會以2的N次方倍增加。
+最開始會以讓使用者輸入兩多項後，接著進行運算子多載的運作，至於為什麼要用到輸入輸出運算子多載呢??因為這兩個運算子原本只認得內建型別，可是如果你想要直接對「自訂類別」輸入或輸出（Polynomial）就不知道要怎麼印，所以使用運算子多載來告知編譯器。
+
+void Sort(): 運算子輸入可能為錯誤排序，所以需要針對Node做排序的工作，注意!!不可使用內建的因為Sort()只能對隨機存取的容器（如 vector, array）使用但鏈結串列只能順序存取 → 無法用內建排序。
+
+void Newnode(T coef, int exp);
+    void del();
+    
+
+，最後將兩多項式進行四則運算以及帶入參數，在運算過程中的每個獨立指數項都會帶入動態記憶體termArray中，且必須時刻判斷空間是否不足，不足時要進行記憶體擴充，方法會以2的N次方倍增加。
 
 加法運算:將兩排序後多項式判斷是否有相同項進行合併並排序
 
@@ -30,12 +42,11 @@ Microsoft Visual Studio 2019 C++
 ```cpp
 //41343124 四資工二甲 張豈睿
 #include <iostream>
-#include <cmath>
 using namespace std;
 
 template <class T> class Polynomial;
 template <class T>
-class Node {
+class Node {  //----------------------這個是ChainNode但我比較想叫Node
     friend class Polynomial<T>;
 public:
     int exp;
@@ -63,6 +74,7 @@ public:
     Polynomial<T> R(const Polynomial<T>& b) const;
     void Newnode(T coef, int exp);
     void del();
+    void Sort(); 
     ~Polynomial();
 
     friend istream& operator>>(istream& in, Polynomial<T>& x) {
@@ -74,6 +86,7 @@ public:
             in >> coef >> exp;
             x.Newnode(coef, exp);
         }
+        x.Sort(); // 輸入後自動排序
         return in;
     }
 
@@ -99,9 +112,7 @@ public:
             else {
                 if (absCoef != 1)
                     out << absCoef;
-
                 out << "x";
-
                 if (e != 1)
                     out << "^" << e;
             }
@@ -169,7 +180,7 @@ void Polynomial<T>::del() {
 
 ////////////////////////////////////////////////////////////////
 template <class T>
-void Polynomial<T>::Newnode(T coef, int exp) {
+void Polynomial<T>::Newnode(T coef, int exp) { //----------------------這個是ChainIterator但我比較想叫Newnode
     if (coef == 0) return;
 
     Node<T>* p = head;
@@ -190,6 +201,26 @@ void Polynomial<T>::Newnode(T coef, int exp) {
     }
 
     p->link = new Node<T>(coef, exp, q);
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+void Polynomial<T>::Sort() {
+    if (head->link == head || head->link->link == head) return;
+
+    bool swapped;
+    do {
+        swapped = false;
+        Node<T>* p = head->link;
+        while (p->link != head) {
+            if (p->exp < p->link->exp) { 
+                swap(p->coef, p->link->coef);
+                swap(p->exp, p->link->exp);
+                swapped = true;
+            }
+            p = p->link;
+        }
+    } while (swapped);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -273,6 +304,7 @@ Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& b) const {
     }
     return c;
 }
+
 ////////////////////////////////////////////////////////////////
 template <class T>
 Polynomial<T> Polynomial<T>::operator/(const Polynomial<T>& b) const {
@@ -338,16 +370,15 @@ int main() {
     cout << "A + B: " << (A + B) << endl;
     cout << "A - B: " << (A - B) << endl;
     cout << "A * B: " << (A * B) << endl;
+
     Polynomial<int> D = A / B;
     Polynomial<int> S = A.R(B);
 
     cout << "A / B = " << D << endl;
     cout << "A % B = " << S << endl;
 
-    cout << "41343124.¬v¨¡";//¦¹¤D¨¾©e¼Ð°O
-
+    cout << "41343124.洋芋";//此乃防委標記
     return 0;
-
 }
 ```
 
