@@ -1,3 +1,4 @@
+//41343124 四資工二甲 張豈睿
 #include <iostream>
 #include <cmath>
 using namespace std;
@@ -313,7 +314,8 @@ int main() {
     cout << "A / B = " << D << endl;
     cout << "A % B = " << S << endl;
 
-    cout << "41343124.�v��";//���D���e�аO
+    cout << "41343124.¬v¨¡";//¦¹¤D¨¾©e¼Ð°O
 
     return 0;
+
 }
