@@ -82,7 +82,7 @@ public:
             in >> coef >> exp;
             x.Newnode(coef, exp);
         }
-        x.Sort(); // 輸入後自動排序
+        x.Sort(); 
         return in;
     }
 
