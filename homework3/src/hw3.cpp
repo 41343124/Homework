@@ -4,7 +4,7 @@ using namespace std;
 
 template <class T> class Polynomial;
 template <class T>
-class Node {
+class Node {  //----------------------這個是ChainNode但我比較想叫Node
     friend class Polynomial<T>;
 public:
     int exp;
@@ -32,6 +32,7 @@ public:
     Polynomial<T> R(const Polynomial<T>& b) const;
     void Newnode(T coef, int exp);
     void del();
+    void Sort(); 
     ~Polynomial();
 
     friend istream& operator>>(istream& in, Polynomial<T>& x) {
@@ -43,6 +44,7 @@ public:
             in >> coef >> exp;
             x.Newnode(coef, exp);
         }
+        x.Sort(); 
         return in;
     }
 
@@ -68,9 +70,7 @@ public:
             else {
                 if (absCoef != 1)
                     out << absCoef;
-
                 out << "x";
-
                 if (e != 1)
                     out << "^" << e;
             }
@@ -138,7 +138,7 @@ void Polynomial<T>::del() {
 
 ////////////////////////////////////////////////////////////////
 template <class T>
-void Polynomial<T>::Newnode(T coef, int exp) {
+void Polynomial<T>::Newnode(T coef, int exp) { //----------------------這個是ChainIterator但我比較想叫Newnode
     if (coef == 0) return;
 
     Node<T>* p = head;
@@ -159,6 +159,26 @@ void Polynomial<T>::Newnode(T coef, int exp) {
     }
 
     p->link = new Node<T>(coef, exp, q);
+}
+
+////////////////////////////////////////////////////////////////
+template <class T>
+void Polynomial<T>::Sort() {
+    if (head->link == head || head->link->link == head) return;
+
+    bool swapped;
+    do {
+        swapped = false;
+        Node<T>* p = head->link;
+        while (p->link != head) {
+            if (p->exp < p->link->exp) { 
+                swap(p->coef, p->link->coef);
+                swap(p->exp, p->link->exp);
+                swapped = true;
+            }
+            p = p->link;
+        }
+    } while (swapped);
 }
 
 ////////////////////////////////////////////////////////////////
@@ -242,6 +262,7 @@ Polynomial<T> Polynomial<T>::operator*(const Polynomial<T>& b) const {
     }
     return c;
 }
+
 ////////////////////////////////////////////////////////////////
 template <class T>
 Polynomial<T> Polynomial<T>::operator/(const Polynomial<T>& b) const {
@@ -307,15 +328,13 @@ int main() {
     cout << "A + B: " << (A + B) << endl;
     cout << "A - B: " << (A - B) << endl;
     cout << "A * B: " << (A * B) << endl;
+
     Polynomial<int> D = A / B;
     Polynomial<int> S = A.R(B);
 
     cout << "A / B = " << D << endl;
     cout << "A % B = " << S << endl;
 
-    cout << "41343124.¬v¨¡";//¦¹¤D¨¾©e¼Ð°O
-
+    cout << "41343124.洋芋";//此乃防委標記
     return 0;
-
 }
-
