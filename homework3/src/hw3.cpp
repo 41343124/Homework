@@ -1,6 +1,5 @@
 //41343124 四資工二甲 張豈睿
 #include <iostream>
-#include <cmath>
 using namespace std;
 
 template <class T> class Polynomial;
@@ -319,3 +318,4 @@ int main() {
     return 0;
 
 }
+
