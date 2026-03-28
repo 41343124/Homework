@@ -1,34 +1,14 @@
 
 # 41343124
 
-## 作業四 (Binary Search Tree)
+## 作業四 (Max/Min Heap & Binary Search Tree)
 
 ## 解題說明
-
-本題目為運用多項式(Polynomial)來進行四維運算中的加法以及乘法，其中會用到algorithm及cmath這兩個標頭檔。
-
-1.```<algorithm>``` 這個標頭檔提供大量常用的演算法函式，但在這個題目中只會用到sort()排序，主要適用於在輸入兩個多項式以及合併前最後輸出等使用。
-
-2.```<cmath>``` 這個標頭檔是 C++ 數學函式庫，包含各種數學運算函式，題目中用於多項式的 Eval() 函式，計算 pow(x, exp)。
+本題目為抽象資料型別，該抽象類別定義了一個最小優先權佇列，然後寫一個繼承自該抽象類別的 C++ 類別 MinHeap及MaxHeap作比較，主要在驗證MinHeap及MaxHeap時間複雜度。
 
 ### 解題策略
-
-最開始會以讓使用者輸入兩多項後，進行istream and ostream運算子的運作，至於為什麼要用到輸入輸出運算子多載呢?因為這兩個運算子原本只認得內建型別，可是如果你想要直接對「自訂類別」輸入或輸出（Polynomial）就不知道要怎麼印，所以使用運算子多載來告知編譯器，再來進行運算子輸入的合併(有可能有相同指數)以及排序，最後將兩多項式進行四則運算以及帶入參數，在運算過程中的每個獨立指數項都會帶入動態記憶體termArray中，且必須時刻判斷空間是否不足，不足時要進行記憶體擴充，方法會以2的N次方倍增加。
-
-加法運算:將兩排序後多項式判斷是否有相同項進行合併並排序
-
-乘法運算:把兩排序後多項式每一項常數項以及指數項相乘並傳入新多項式空間進行合併並排序
-
-輸出:若係數為 -1 且次方 !=0，顯示 "-" 不顯示 1，非-1 且次方 !=0，顯示的顯示 "-" 以及絕對值後的常數項，次方項=0，顯示的顯示 "0"
-
-## 程式實作
-
-### IDE:
-Microsoft Visual Studio 2019 C++
-
+在程式選寫的過程中可以加入heap_up & heap_down 來幫助判斷節點大小以及是否需要刪除節點。
 ```cpp
-﻿//四資工二甲 41343124 張豈睿 
-
 /*
    這個程式可以讓使用者選擇：
    輸入 n 個數字
@@ -39,6 +19,16 @@ Microsoft Visual Studio 2019 C++
    功能移除節點 ex. 最大/最小
    參考網站: Medium 來征服資料結構與演算法吧 ! 搞懂 Binary Heap 的排序原理
 */
+```
+
+
+## 程式實作
+
+### IDE:
+Microsoft Visual Studio 2019 C++
+
+```cpp
+﻿//四資工二甲 41343124 張豈睿 
 
 #include <iostream>
 #include <vector> // 提供動態陣列容器 vector，用來存放堆中的元素，大小可動態增加或縮減
@@ -127,7 +117,7 @@ public:
         int level = 0;
         int i = 0;
 
-        while (index < n) {
+        while (i < n) {
             int count = 1 << i; // 每層節點數 = 2^level
             cout << "Level " << level << ": ";
             for (int i = 0; i < count && i < n; i++) {
@@ -175,51 +165,63 @@ int main() {
 
 ## 效能分析
 
-**1.void Sort()**
+**1.bool C(const T& a, const T& b) const**
 
-運作：sort()：O(t log t)合併重複次方與移除 0 項：O(t)
+運作：只做一次比較 (< 或 >)
 
-時間複雜度：O(t log t)
+時間複雜度：O(1)
 
-空間複雜度：O(1)（就地排序）
+**2.heap_up(int i)**
 
-**2.void STerm(float coef, int exp)**
+運作：每次往父節點移動 i → (i-1)/2
 
-運作：用線性搜尋判斷是否已有相同次方（O(terms)）若沒有，插入新項（O(1)），若空間不足時呼叫 NewArray()（可能觸發 O(terms) 的搬移）
+時間複雜度：平均情況：O(1)，最壞情況：O(log n)
 
-時間複雜度：平均情況：O(t)，最壞情況（空間擴充）：O(t)
+**3.heap_down(int i)**
 
-空間複雜度：O(t)（動態陣列）
+運作：每次往下一層（左或右子節點）最多走到葉節點
 
-**3.Polynomial Add(const Polynomial& n) const**
+時間複雜度：平均情況：O(1)，最壞情況：O(log n)
 
-運作：對兩個多項式的每一項呼叫 addTerm()本身需要線性搜尋 (O(t))，所以總共約有：
-O(m * (平均搜尋長度)) + O(n * (平均搜尋長度))≈ O(m^2 + n^2)（若項數接近）最後呼叫 Sort()（O(t log t)）
+**4.Push()**
 
-時間複雜度：
-𝑂((𝑚+𝑛)^2)
+運作：push_back() → O(1) heap_up() → O(log n)
+時間複雜度：O(log n)
 
-空間複雜度：
-O(m + n)（儲存結果多項式）
+**5.Pop()**
 
-**4.Polynomial Mult(const Polynomial& n) const**
+運作：swap → O(1) pop_back → O(1) heap_down → O(log n)
 
-運作：雙層迴圈 m × n 次相乘（O(m·n)，每次乘積都呼叫 addTerm()（線性搜尋，O(t)，若結果多項式項數接近 m·n，則：
-O(m*n * t) ≈ O(m^2 * n^2) 最壞情況，最後 Sort()：O(t log t)
+時間複雜度：時間複雜度：O(log n)
 
-時間複雜度：平均情況：O(m·n·t) ≈ O(m² n²) 最壞情況，若合併有效（少重複次方）約 O(m·n)
+**6.Top()**
 
-空間複雜度：
-O(m + n + m·n)（儲存中間結果）
+運作：直接取陣列第一個元素
 
-**5.float Eval(float f) const**
+時間複雜度：時間複雜度：O(1)
 
-運作：單一迴圈，計算每項 coef * powf(x, exp)，而 powf() 通常為 O(1)（硬體或快速冪），因此整體線性。
+**7.Empty()**
 
-時間複雜度：O(t)
+時間複雜度：時間複雜度：O(1)
 
-空間複雜度：O(1)
+**9.in_p(int n)**
 
+運作：每次 Push = O(log n)
+
+時間複雜度：時間複雜度：O(n log n)
+
+**MinHeap 部分**
+ 輸入 n 個元素 → in_p(n) → O(n log n)
+ 印樹 → printTree() → O(n)
+ Top → O(1)
+ Pop → O(log n)
+ 再印一次 → O(n)
+
+ O(n log n) + O(n) + O(log n) + O(n)
+ ≈ O(n log n)#
+ 
+ MaxHeap 部分（完全一樣）也是 O(n log n)
+ 
 ## 測試與驗證
 
 | 測試案例 | P1(x) | P2(x) | x | Add | Mult | Eval |
