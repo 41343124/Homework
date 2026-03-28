@@ -98,7 +98,7 @@ public:
         int level = 0;
         int i = 0;
 
-        while (index < n) {
+        while (i < n) {
             int count = 1 << i; // 每層節點數 = 2^level
             cout << "Level " << level << ": ";
             for (int i = 0; i < count && i < n; i++) {
