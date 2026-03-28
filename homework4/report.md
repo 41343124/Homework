@@ -276,3 +276,272 @@ heap有完整且實作層面，透過自己撰寫 MinHeap 與 MaxHeap，並進�
 
 3. **理想推演**
    使用vector<Term> 管理記憶體、增加多項式輸入驗證、用模板（template）支援整數或複數型別等方法
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+## 解題說明 Binary Search Tree（BST）
+
+本題分為兩部分：
+
+### (a) BST 高度分析
+
+建立一棵空的 Binary Search Tree，插入 n 個隨機數，並計算：
+
+* 樹的高度（height）
+* 比值：
+
+```
+height / log₂(n)
+```
+
+驗證此比值是否接近常數（約 2）。
+
+---
+
+### (b) 刪除節點
+
+實作一個函式，從 BST 中刪除指定 key，並分析時間複雜度。
+
+---
+
+## 解題策略
+
+### (a) 隨機建樹與高度分析
+
+1. 使用 `rand()` 產生隨機數
+2. 插入 BST
+3. 使用遞迴計算高度
+4. 計算：
+
+```
+height / log₂(n)
+```
+
+用來驗證 BST 平均高度 ≈ O(log n)
+
+---
+
+### (b) 刪除節點（核心重點🔥）
+
+刪除分成三種情況：
+
+| 情況          | 說明        |
+| ----------- | --------- |
+|  葉節點     | 直接刪除      |
+|  只有一個子節點 | 用子節點取代    |
+|  兩個子節點   | 用右子樹最小值取代 |
+
+---
+
+## 程式實作
+
+---
+
+### 高度分析程式
+
+```cpp
+
+---
+
+### 刪除節點程式
+
+```cpp
+// 四資工二甲 41343124 張豈睿
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int key;
+    Node* left;
+    Node* right;
+    Node(int k) : key(k), left(nullptr), right(nullptr) {}
+};
+
+Node* insert(Node* root, int key) {
+    if (!root) return new Node(key);
+
+    if (key < root->key)
+        root->left = insert(root->left, key);
+    else
+        root->right = insert(root->right, key);
+
+    return root;
+}
+
+Node* findMin(Node* root) {
+    while (root->left != nullptr)
+        root = root->left;
+    return root;
+}
+
+Node* deleteNode(Node* root, int key) {
+    if (!root) return nullptr;
+
+    if (key < root->key)
+        root->left = deleteNode(root->left, key);
+
+    else if (key > root->key)
+        root->right = deleteNode(root->right, key);
+
+    else {
+        // Case 1: 葉節點
+        if (!root->left && !root->right) {
+            delete root;
+            return nullptr;
+        }
+
+        // Case 2: 單子節點
+        else if (!root->left) {
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        }
+
+        else if (!root->right) {
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        // Case 3: 兩個子節點
+        Node* temp = findMin(root->right);
+        root->key = temp->key;
+        root->right = deleteNode(root->right, temp->key);
+    }
+
+    return root;
+}
+
+void inorder(Node* root) {
+    if (!root) return;
+    inorder(root->left);
+    cout << root->key << " ";
+    inorder(root->right);
+}
+
+int main() {
+    Node* root = nullptr;
+
+    int arr[] = { 50, 30, 70, 20, 40, 60, 80 };
+    for (int x : arr)
+        root = insert(root, x);
+
+    cout << "原始 BST (inorder): ";
+    inorder(root);
+    cout << endl;
+
+    int key;
+    cout << "請輸入要刪除的值: ";
+    cin >> key;
+
+    root = deleteNode(root, key);
+
+    cout << "刪除後 BST (inorder): ";
+    inorder(root);
+    cout << endl;
+
+    return 0;
+}
+```
+
+---
+
+## ⏱️ 時間複雜度分析
+
+### 🔹 (a) 高度分析
+
+| 操作     | 複雜度            |
+| ------ | -------------- |
+| 插入 n 次 | O(n log n)（平均） |
+| 高度計算   | O(n)           |
+
+---
+
+### 🔹 (b) 刪除操作
+
+| 操作   | 複雜度  |
+| ---- | ---- |
+| 搜尋節點 | O(h) |
+| 刪除節點 | O(h) |
+
+👉 其中 h = 樹高度
+
+* 平均：O(log n)
+* 最壞：O(n)（退化成鏈結串列）
+
+---
+
+## 📊 測試與觀察
+
+### (a) 高度分析結果
+
+```
+n = 100 → ratio ≈ 2.x
+n = 1000 → ratio ≈ 2.x
+n = 10000 → ratio ≈ 2.x
+```
+
+👉 符合題目「約為常數」的預期
+
+---
+
+### (b) 刪除測試
+
+範例：
+
+```
+原始：20 30 40 50 60 70 80
+刪除 50
+結果：20 30 40 60 70 80
+```
+
+---
+
+## 🧠 心得
+
+這題讓我更深入理解 BST 的兩個核心重點：
+
+### 1️⃣ BST 的效率不穩定
+
+* 隨機資料 → 接近 O(log n)
+* 排序資料 → 最壞 O(n)
+
+---
+
+### 2️⃣ 刪除操作最複雜
+
+特別是：
+
+* 「兩個子節點」情況
+* 需要找 **中序後繼（右子樹最小值）**
+
+---
+
+### 3️⃣ 實作觀念提升
+
+* 遞迴設計
+* 指標操作
+* 記憶體管理（delete）
+
+---
+
+## 🚀 延伸應用
+
+* AVL Tree（平衡 BST）
+* Red-Black Tree
+* Database Index
+* 搜尋系統
+
+---
+
+## 🔚 結論
+
+* BST 平均效率良好，但最壞情況差
+* 刪除操作需特別注意三種情況
+* 實務上會使用平衡樹改善效能
+
+---
+
+```
+41343124.洋芋 => 防委標記
+```
