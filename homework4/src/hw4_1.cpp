@@ -96,13 +96,13 @@ public:
     void printTree() { // 樹狀層層輸出
         int n = heap.size();
         int level = 0;
-        int i = 0;
+        int index = 0;
 
-        while (i < n) {
-            int count = 1 << i; // 每層節點數 = 2^level
+        while (index < n) {
+            int count = 1 << index; // 每層節點數 = 2^level
             cout << "Level " << level << ": ";
-            for (int i = 0; i < count && i < n; i++) {
-                cout << heap[i++] << " ";
+            for (int i = 0; i < count && index < n; i++) {
+                cout << heap[index++] << " ";
             }
             cout << endl;
             level++;
